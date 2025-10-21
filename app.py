@@ -1,13 +1,16 @@
 from flask import Flask, render_template, request, Response
 import json
 import os
-import requests
+import google.generativeai as genai
 from faq_data import FAQ_DATA
 
-# Hugging Face configuration
-HF_MODEL = os.getenv("HF_MODEL", "google/gemma-2-2b-it")
-HF_API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
-HF_TOKEN = os.getenv("HF_TOKEN")
+# Google Gemini configuration
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+    model = genai.GenerativeModel('gemini-2.5-flash')
+else:
+    model = None
 
 # System prompt for the AI assistant
 SYSTEM_PROMPT = """
@@ -42,7 +45,7 @@ EXTRA FEATURES:
 
 print("Starting Flask app...")
 print("FAQ_DATA loaded:", len(FAQ_DATA), "items")
-print("Using Hugging Face model:", HF_MODEL)
+print("Using Google Gemini: gemini-2.5-flash")
 
 app = Flask(__name__)
 
@@ -56,8 +59,8 @@ def stream_response():
     
     def generate():
         try:
-            if not HF_TOKEN:
-                yield f"data: {json.dumps({'error': 'Hugging Face token not configured'})}\n\n"
+            if not model:
+                yield f"data: {json.dumps({'error': 'Gemini API key not configured'})}\n\n"
                 return
             
             # Create FAQ context for the AI with links
@@ -88,41 +91,23 @@ Below is the official GW FAQ database for international students. This is your P
 5. Always prioritize accuracy over completeness—if unsure, direct them to the right office.
 """
             
-            # Prepare the full prompt for Hugging Face
+            # Prepare the full prompt for Gemini
             full_prompt = f"{enhanced_system_prompt}\n\nStudent Question: {question}\n\nAssistant:"
             
-            # Make request to Hugging Face API
-            headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-            payload = {"inputs": full_prompt}
+            # Call Gemini API with streaming
+            response = model.generate_content(full_prompt, stream=True)
             
-            response = requests.post(HF_API_URL, headers=headers, json=payload, timeout=60)
+            # Stream the response chunk by chunk
+            for chunk in response:
+                if chunk.text:
+                    yield f"data: {json.dumps({'content': chunk.text})}\n\n"
             
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Extract the generated text
-                if isinstance(data, list) and len(data) > 0:
-                    generated_text = data[0].get("generated_text", "")
-                    # Remove the original prompt from the response
-                    answer = generated_text.replace(full_prompt, "").strip()
-                else:
-                    answer = str(data)
-                
-                # Stream the response word by word
-                words = answer.split()
-                for word in words:
-                    chunk = word + " "
-                    yield f"data: {json.dumps({'content': chunk})}\n\n"
-                
-                yield f"data: [DONE]\n\n"
-            else:
-                error_msg = f"Hugging Face API error: {response.status_code} - {response.text}"
-                yield f"data: {json.dumps({'error': error_msg})}\n\n"
+            yield f"data: [DONE]\n\n"
             
-        except requests.exceptions.Timeout:
-            yield f"data: {json.dumps({'error': 'Request timed out. Please try again.'})}\n\n"
         except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            error_msg = f"Error: {str(e)}"
+            print(f"Gemini API Error: {error_msg}")
+            yield f"data: {json.dumps({'error': error_msg})}\n\n"
     
     return Response(generate(), mimetype='text/event-stream')
     
