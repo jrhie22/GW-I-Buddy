@@ -1,0 +1,9 @@
+# Hugging Face Configuration
+HF_TOKEN=hf_your_api_token_here
+HF_MODEL=google/gemma-2-2b-it
+
+# Instructions:
+# 1. Get your Hugging Face token from: https://huggingface.co/settings/tokens
+# 2. Replace 'hf_your_api_token_here' with your actual token
+# 3. For Render deployment, add these as Environment Variables in Render dashboard
+# 4. Model uses Hugging Face InferenceClient with chat completions API
