@@ -197,6 +197,8 @@
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let botResponse = '';
+                let contentQueue = [];
+                let isProcessingQueue = false;
                 
                 // Remove typing indicator
                 removeTypingIndicator();
@@ -206,6 +208,24 @@
                 botMessageDiv.className = 'message bot-message';
                 botMessageDiv.id = 'botMessage';
                 document.getElementById('chatContainer').appendChild(botMessageDiv);
+                
+                // Function to process queue with typing animation
+                async function processQueue() {
+                    if (isProcessingQueue) return;
+                    isProcessingQueue = true;
+                    
+                    while (contentQueue.length > 0) {
+                        const content = contentQueue.shift();
+                        botResponse += content;
+                        botMessageDiv.innerHTML = formatText(botResponse);
+                        document.getElementById('chatContainer').scrollTop = 
+                            document.getElementById('chatContainer').scrollHeight;
+                        
+                        // Small delay for typing effect (adjust speed here: lower = faster)
+                        await new Promise(resolve => setTimeout(resolve, 15));
+                    }
+                    isProcessingQueue = false;
+                }
                 
                 while (true) {
                     const { done, value } = await reader.read();
@@ -224,10 +244,8 @@
                             try {
                                 const parsed = JSON.parse(data);
                                 if (parsed.content) {
-                                    botResponse += parsed.content;
-                                    botMessageDiv.innerHTML = formatText(botResponse);
-                                    document.getElementById('chatContainer').scrollTop = 
-                                        document.getElementById('chatContainer').scrollHeight;
+                                    contentQueue.push(parsed.content);
+                                    processQueue();
                                 } else if (parsed.error) {
                                     botMessageDiv.innerHTML = `Sorry, I encountered an error: ${parsed.error}`;
                                 }
@@ -236,6 +254,11 @@
                             }
                         }
                     }
+                }
+                
+                // Wait for queue to finish
+                while (contentQueue.length > 0 || isProcessingQueue) {
+                    await new Promise(resolve => setTimeout(resolve, 10));
                 }
                 
             } catch (error) {
