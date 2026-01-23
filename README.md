@@ -1,4 +1,3 @@
-<img width="352" height="348" alt="Screenshot 2026-01-22 at 14 04 59" src="https://github.com/user-attachments/assets/a892e2b2-df3d-4f98-a3f3-6ace185c4c3e" /><Overall Journey of GW I-Buddy>
 
 Found how incoming international students at GWSB had been asking very basic FAQ questions every student orientation, when I was joining as a panelist. Although commonly asked questions are well-organized
 in GW websites.
