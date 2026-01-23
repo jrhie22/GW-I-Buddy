@@ -42,3 +42,7 @@ With 35 respondents in total, I found 3 important patterns.
 **Oct 2025**
 </br>
 -Presented updated version of GW I-Buddy to leadership, started preparation for security compliance with GW IT team.
+
+**Jan 2026**
+</br>
+-Review user interaction by checking behavioral guardrails, tone and attributes of AI by organizing the prompts.
