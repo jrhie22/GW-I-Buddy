@@ -46,3 +46,7 @@ With 35 respondents in total, I found 3 important patterns.
 **Jan 2026**
 </br>
 -Review user interaction by checking behavioral guardrails, tone and attributes of AI by organizing the prompts.
+
+**Mar 2026**
+</br>
+-Preparing Deployment via WhatsAPP for better accessibility
