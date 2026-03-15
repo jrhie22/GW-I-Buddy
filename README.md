@@ -21,7 +21,7 @@ With 35 respondents in total, I found 3 important patterns.
 
 ## Projected System Structure
 
-
+<img src="structure_img" alt="Alt text" width="700" height="700">
 
 ## Project Timeline
 
