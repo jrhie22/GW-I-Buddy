@@ -19,8 +19,11 @@ With 35 respondents in total, I found 3 important patterns.
 2) Information access is slow and fragmented: it causing delays and frustration when students seek timely answers.
 3) Unclear or delayed guidance increases stress: international students who are adapting to a new system are struggling with unclear guidance.
 
+## Projected System Structure
 
-## Project Tracking Initiation
+
+
+## Project Timeline
 
 
 **July 2025**
